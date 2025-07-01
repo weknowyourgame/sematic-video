@@ -9,7 +9,9 @@ export async function createContext(
     c,
     db: c?.env?.DB,
     ai: c?.env?.AI,
-    r2: c?.env?.R2,
+    videos: c?.env?.videos,
+    audios: c?.env?.audios,
+    frames: c?.env?.frames,
     segmentQueue: c?.env?.video_segment_queue,
   };
 }

@@ -11,12 +11,18 @@ database_id = "f0ba94b8-e45c-4e2f-8d20-63fbf4b42721"
 binding = "AI"
 
 [[r2_buckets]]
-binding = "R2"
-videos-bucket = "sematic-videos"
-audios-bucket = "sematic-audios"
-frames-bucket = "sematic-frames"
+binding = "sematic-videos"
+bucket_name = "sematic-videos"
 
-[[queues]]
+[[r2_buckets]]
+binding = "sematic-audios"
+bucket_name = "sematic-audios"
+
+[[r2_buckets]]
+binding = "sematic-frames"
+bucket_name = "sematic-frames"
+
+[[queues.producers]]
 binding = "video_segment_queue"
 queue_name = "video-segment-queue"
 

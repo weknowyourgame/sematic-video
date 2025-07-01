@@ -9,7 +9,9 @@ export default {
     // override with actual environment bindings
     ctx.db = env.DB;
     ctx.ai = env.AI;
-    ctx.r2 = env.R2;
+    ctx.videos = env.videos;
+    ctx.audios = env.audios;
+    ctx.frames = env.frames;
     ctx.segmentQueue = env.video_segment_queue;
 
     for (const message of batch.messages) {

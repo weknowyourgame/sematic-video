@@ -24,7 +24,7 @@ export const segmentRouter = t.router({
           });
         }
 
-        const videosBucket = ctx.r2.bucket("sematic-videos");
+        const videosBucket = ctx.videos;
         const videoKey = `${videoId}.mp4`;
         const videoObject = await videosBucket.get(videoKey);
 
@@ -216,7 +216,7 @@ export async function processSegmentJob(ctx: Context, job: any) {
     const { frameBase64 } = await response.json();
 
     // upload frame to R2
-    const framesBucket = ctx.r2.bucket("sematic-frames");
+    const framesBucket = ctx.frames;
     const frameKey = `${videoId}/${frameId}.jpg`;
     const frameBuffer = Buffer.from(frameBase64, 'base64');
 
@@ -226,7 +226,7 @@ export async function processSegmentJob(ctx: Context, job: any) {
       },
     });
 
-    const frameUrl = `https://${ctx.r2.accountId}.r2.cloudflarestorage.com/sematic-frames/${frameKey}`;
+    const frameUrl = `https://${framesBucket.accountId}.r2.cloudflarestorage.com/${framesBucket.name}/${frameKey}`;
 
     // store frame in database
     await ctx.db?.prepare(`

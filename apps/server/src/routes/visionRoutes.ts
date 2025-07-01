@@ -12,7 +12,8 @@ export const visionRouter = t.router({
   .query(async ({ ctx, input }) => {
     const { id, frameUrl } = input;
 
-    const frame = await ctx.r2.bucket("sematic-frames").get(frameUrl);
+    const framesBucket = ctx.frames;
+    const frame = await framesBucket.get(frameUrl);
     const blob = await frame.arrayBuffer();
 
     const imageInput = {

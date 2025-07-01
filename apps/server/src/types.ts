@@ -4,7 +4,9 @@ export const status = ['active'] as const;
 export interface Env {
   DB: D1Database;
   AI: Ai;
-  R2: R2Bucket;
+  videos: R2Bucket;
+  audios: R2Bucket;
+  frames: R2Bucket;
   video_segment_queue: Queue;
 }
 export interface Message<T = any> {
