@@ -21,3 +21,15 @@ export const convertAudioSchema = z.object({
   audioId: z.string(),
   audioUrl: z.string().url(),
 });
+
+export const framesSchema = z.object({
+  id: z.string(),
+  // combined embedding of the frame including the audio and visual
+  embedding: z.array(z.number()),
+  startTime: z.number(),
+  endTime: z.number(),
+  transcript: z.string(),
+  visualDescription: z.string(),
+  frameUrl: z.string().url(),
+  videoId: z.string(),
+});

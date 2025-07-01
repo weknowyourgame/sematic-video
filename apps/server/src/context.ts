@@ -1,5 +1,4 @@
 import type { Context as HonoContext } from 'hono';
-import { setCookie } from 'hono/cookie';
 import type { BlankInput } from 'hono/types';
 import type { Env } from './types';
 

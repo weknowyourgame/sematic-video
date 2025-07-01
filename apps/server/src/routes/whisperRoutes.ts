@@ -34,6 +34,8 @@ export const whisperRouter = t.router({
           await bucket.put(key, text);
           const url = `https://${ctx.r2.accountId}.r2.cloudflarestorage.com/${bucket.name}/${key}`;
           console.log(url);
+
+          // update db
           await ctx.db?.prepare(`
             UPDATE audios SET text = ?, status = ?, updatedAt = ?, url = ? WHERE id = ?
           `).bind(
