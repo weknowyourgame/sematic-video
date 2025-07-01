@@ -4,7 +4,6 @@ import { updateSchema } from './schemas';
 import { videoRouter } from './routes/videoRoutes';
 import { audioRouter } from './routes/audioRoutes';
 import { whisperRouter } from './routes/whisperRoutes';
-import { frameRouter } from './routes/frameRoutes';
 import { visionRouter } from './routes/visionRoutes';
 import { vectorRouter } from './routes/vectorRoutes';
 
@@ -26,7 +25,6 @@ export const appRouter = router({
   video: videoRouter,
   audio: audioRouter,
   whisper: whisperRouter,
-  frame: frameRouter,
   vision: visionRouter,
   vector: vectorRouter,
   });
