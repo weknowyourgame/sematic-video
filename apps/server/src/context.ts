@@ -9,6 +9,7 @@ export async function createContext(
   return {
     c,
     db: c?.env?.DB,
+    ai: c?.env?.AI,
   };
 }
 

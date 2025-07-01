@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const t = initTRPC.context<Context>().create();
 
-export const whisperRouter = t.router({
+export const audioRouter = t.router({
     convertVidToAudio: t.procedure
     .input(convertAudioSchema)
     .mutation(async ({ ctx, input }) => {
@@ -40,7 +40,7 @@ export const whisperRouter = t.router({
         }
         if (response.ok) {
         await ctx.db?.prepare(`
-            INSERT INTO videos (id, title, url, status, createdAt, updatedAt)
+            INSERT INTO audios (id, title, url, status, createdAt, updatedAt)
             VALUES (?, ?, ?, ?, ?, ?)
           `).bind(
             audioId,
@@ -85,4 +85,4 @@ export const whisperRouter = t.router({
     }),  
 })
 
-export type whisperRouter = typeof whisperRouter;
+export type audioRouter = typeof audioRouter;

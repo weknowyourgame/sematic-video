@@ -6,3 +6,11 @@ compatibility_date = "2024-01-01"
 binding = "DB"
 database_name = "sematic"
 database_id = "f0ba94b8-e45c-4e2f-8d20-63fbf4b42721" 
+
+[ai]
+binding = "AI"
+
+[[r2_buckets]]
+binding = "R2"
+videos-bucket = "sematic-videos"
+audios-bucket = "sematic-audios"

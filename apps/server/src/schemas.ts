@@ -19,4 +19,5 @@ export const videoSchema = z.object({
 export const convertAudioSchema = z.object({
   ...videoSchema.shape,
   audioId: z.string(),
+  audioUrl: z.string().url(),
 });
