@@ -192,21 +192,30 @@ export async function processSegmentJob(ctx: Context, job: any) {
     // generate frame ID
     const frameId = `${videoId}_segment_${segmentIndex}_${Date.now()}`;
 
-    // extract frame using FFmpeg API
-    // TODO: Replace with actual FFmpeg server URL
-    const ffmpegServerUrl = 'https://your-ffmpeg-server.com/extract-segment-frame';
-    
-    const frameExtractionPayload = {
-      videoId,
-      startTime,
-      endTime,
-      frameId,
-    };
+    // get video from R2 bucket
+    const videosBucket = ctx.videos;
+    const videoKey = `${videoId}.mp4`;
+    const videoObject = await videosBucket.get(videoKey);
 
-    const response = await fetch(ffmpegServerUrl, {
+    if (!videoObject) {
+      throw new Error(`Video file not found in R2: ${videoKey}`);
+    }
+
+    // extract frame using FFmpeg API
+    const ffmpegServerUrl = process.env.FFMPEG_API_URL || 'http://localhost:3001';
+    const ffmpegEndpoint = `${ffmpegServerUrl}/video/extract/segment-frame`;
+    
+    // Create form data for file upload
+    const formData = new FormData();
+    formData.append('file', new Blob([await videoObject.arrayBuffer()]), `${videoId}.mp4`);
+    formData.append('videoId', videoId);
+    formData.append('frameId', frameId);
+    formData.append('startTime', startTime.toString());
+    formData.append('endTime', endTime.toString());
+
+    const response = await fetch(ffmpegEndpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(frameExtractionPayload),
+      body: formData,
     });
 
     if (!response.ok) {

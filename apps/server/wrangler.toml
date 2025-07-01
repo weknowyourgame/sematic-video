@@ -32,3 +32,6 @@ max_batch_size = 5        # Process 5 segments at once
 max_batch_timeout = 30    # Wait max 30 seconds
 max_retries = 3          # Retry failed jobs 3 times
 dead_letter_queue = "video-segment-dlq"
+
+[vars]
+FFMPEG_API_URL = "http://localhost:3001"
