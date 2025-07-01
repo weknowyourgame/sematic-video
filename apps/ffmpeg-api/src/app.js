@@ -22,6 +22,14 @@ process.on('SIGTERM', handle);
 
 app.use(compression());
 
+// Add CORS middleware to allow requests from your server
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    next();
+});
+
 //routes to handle file upload for all POST methods
 var upload = require('./routes/uploadfile.js');
 app.use(upload);

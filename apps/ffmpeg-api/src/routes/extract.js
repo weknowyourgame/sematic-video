@@ -26,6 +26,11 @@ router.post('/images', function (req, res,next) {
     return extract(req,res,next);
 });
 
+router.post('/segment-frame', function (req, res, next) {
+    res.locals.extract = "segment-frame"
+    return extractSegmentFrame(req, res, next);
+});
+
 router.get('/download/:filename', function (req, res,next) {
     //download extracted image
     let filename = req.params.filename;
@@ -197,6 +202,75 @@ function extract(req,res,next) {
 
     }
 
+}
+
+// extract a single frame from video at specific time range for segmentation
+function extractSegmentFrame(req, res, next) {
+    logger.debug('extract segment frame');
+    
+    let startTime = req.body.startTime || req.query.startTime || 0;
+    let endTime = req.body.endTime || req.query.endTime;
+    let videoId = req.body.videoId || req.query.videoId;
+    let frameId = req.body.frameId || req.query.frameId;
+    
+    if (!videoId || !frameId) {
+        return res.status(400).json({
+            error: 'videoId and frameId are required'
+        });
+    }
+
+    // Calculate the middle time point for frame extraction
+    let extractTime = startTime;
+    if (endTime) {
+        extractTime = (parseFloat(startTime) + parseFloat(endTime)) / 2;
+    }
+
+    let savedFile = res.locals.savedFile;
+    var outputFile = `/tmp/${frameId}.jpg`;
+    
+    logger.debug(`extracting frame at time ${extractTime} from ${savedFile} to ${outputFile}`);
+
+    //ffmpeg processing...
+    var ffmpegCommand = ffmpeg(savedFile);
+    ffmpegCommand = ffmpegCommand
+        .renice(constants.defaultFFMPEGProcessPriority)
+        .seekInput(extractTime)
+        .outputOptions([
+            '-vframes 1',
+            '-q:v 2',
+            '-f image2'
+        ])
+        .on('error', function(err) {
+            logger.error(`${err}`);
+            utils.deleteFile(savedFile);
+            res.status(500).json({error: `${err}`});
+        })
+        .on('end', function() {
+            logger.debug(`ffmpeg process ended`);
+            utils.deleteFile(savedFile);
+            
+            // Convert image to base64
+            const fs = require('fs');
+            try {
+                const imageBuffer = fs.readFileSync(outputFile);
+                const frameBase64 = imageBuffer.toString('base64');
+                
+                // Clean up temporary file
+                utils.deleteFile(outputFile);
+                
+                res.status(200).json({
+                    success: true,
+                    frameBase64: frameBase64,
+                    videoId: videoId,
+                    frameId: frameId,
+                    extractTime: extractTime
+                });
+            } catch (readErr) {
+                logger.error(`Error reading output file: ${readErr}`);
+                res.status(500).json({error: 'Failed to read extracted frame'});
+            }
+        })
+        .save(outputFile);
 }
 
 module.exports = router
