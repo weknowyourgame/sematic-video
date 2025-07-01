@@ -14,3 +14,15 @@ binding = "AI"
 binding = "R2"
 videos-bucket = "sematic-videos"
 audios-bucket = "sematic-audios"
+frames-bucket = "sematic-frames"
+
+[[queues]]
+binding = "video_segment_queue"
+queue_name = "video-segment-queue"
+
+[[queues.consumers]]
+queue = "video-segment-queue" 
+max_batch_size = 5        # Process 5 segments at once
+max_batch_timeout = 30    # Wait max 30 seconds
+max_retries = 3          # Retry failed jobs 3 times
+dead_letter_queue = "video-segment-dlq"

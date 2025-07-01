@@ -20,8 +20,8 @@ export const videoRouter = t.router({
   uploadVideo: t.procedure
     .input(videoSchema)
     .mutation(async ({ ctx, input }) => {
-    const { id, title, url, status, createdAt, updatedAt } = input;
-    
+    const { id, title, status, url, createdAt, updatedAt } = input;
+
     // upload to r2 bucket
     const bucket = ctx.r2.bucket("sematic-videos");
     const key = `${id}.mp4`;

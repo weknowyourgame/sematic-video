@@ -6,6 +6,7 @@ import { audioRouter } from './routes/audioRoutes';
 import { whisperRouter } from './routes/whisperRoutes';
 import { visionRouter } from './routes/visionRoutes';
 import { vectorRouter } from './routes/vectorRoutes';
+import { segmentRouter } from './routes/segmentRoutes';
 
 const t = initTRPC.context<Context>().create();
 
@@ -27,6 +28,7 @@ export const appRouter = router({
   whisper: whisperRouter,
   vision: visionRouter,
   vector: vectorRouter,
+  segment: segmentRouter,
   });
 
 export const createCaller = createCallerFactory(appRouter);

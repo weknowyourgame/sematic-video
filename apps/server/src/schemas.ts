@@ -11,6 +11,7 @@ export const videoSchema = z.object({
   title: z.string(),
   url: z.string().url(),
   status: z.enum(["idle", "processing", "failed", "active"]), // <- idle, processing, failed, active
+  duration: z.number(),
   text: z.string(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
@@ -32,4 +33,17 @@ export const framesSchema = z.object({
   visualDescription: z.string(),
   frameUrl: z.string().url(),
   videoId: z.string(),
+});
+
+export const segmentVideoSchema = z.object({
+  videoId: z.string(),
+  segmentDuration: z.number().min(1).max(60).default(5), // Default 5 seconds, max 60
+});
+
+export const segmentJobSchema = z.object({
+  videoId: z.string(),
+  startTime: z.number(),
+  endTime: z.number(),
+  segmentIndex: z.number(),
+  totalSegments: z.number(),
 });
