@@ -29,11 +29,11 @@ export const whisperRouter = t.router({
           const text = response.text;
 
           // upload to r2 bucket
-          const r2 = ctx.c.env.R2;
-          const bucket = r2.bucket("sematic-videos");
+          const bucket = ctx.r2.bucket("sematic-audios");
           const key = `${audioId}.txt`;
           await bucket.put(key, text);
-          const url = `https://${r2.accountId}.r2.cloudflarestorage.com/${bucket.name}/${key}`;
+          const url = `https://${ctx.r2.accountId}.r2.cloudflarestorage.com/${bucket.name}/${key}`;
+          console.log(url);
           await ctx.db?.prepare(`
             UPDATE audios SET text = ?, status = ?, updatedAt = ?, url = ? WHERE id = ?
           `).bind(

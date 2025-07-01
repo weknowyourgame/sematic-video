@@ -21,10 +21,17 @@ export const videoRouter = t.router({
     .input(videoSchema)
     .mutation(async ({ ctx, input }) => {
     const { id, title, url, status, createdAt, updatedAt } = input;
+    
+    // upload to r2 bucket
+    const bucket = ctx.r2.bucket("sematic-videos");
+    const key = `${id}.mp4`;
+    await bucket.put(key, url);
+    const finalUrl = `https://${ctx.r2.accountId}.r2.cloudflarestorage.com/${bucket.name}/${key}`;
+    console.log(finalUrl);
 
     const video = await ctx.db?.prepare(
         `INSERT INTO videos (id, title, url, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)`
-      ).bind(id, title, url, status, createdAt, updatedAt).run();      
+      ).bind(id, title, finalUrl, status, createdAt, updatedAt).run();      
 
     return video;
   }),

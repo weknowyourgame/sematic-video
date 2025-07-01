@@ -10,6 +10,7 @@ export async function createContext(
     c,
     db: c?.env?.DB,
     ai: c?.env?.AI,
+    r2: c?.env?.R2,
   };
 }
 
