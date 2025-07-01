@@ -1,0 +1,21 @@
+{
+  "name": "server",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "lint": "bunx biome check --write .",
+    "test": "bun test",
+    "types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@trpc/server": "^11.0.0-rc.828",
+    "hono": "^4.7.4",
+    "uuid": "^11.1.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@cloudflare/workers-types": "^4.20250701.0",
+    "@hono/trpc-server": "0.3.4",
+    "@types/bun": "^1.2.5"
+  }
+}
