@@ -39,7 +39,7 @@ RUN mkdir -p /tmp && chmod 777 /tmp
 RUN chown -R ffmpegapi:ffmpegapi /home/ffmpegapi
 
 # Expose port
-EXPOSE 3001
+EXPOSE 8080
 
 # Change user
 USER ffmpegapi
@@ -47,7 +47,7 @@ USER ffmpegapi
 # Set environment variables
 ENV NODE_ENV=production
 ENV FILE_SIZE_LIMIT_BYTES=536870912
-ENV EXTERNAL_PORT=3001
+ENV EXTERNAL_PORT=8080
 
 # Start the application
 CMD ["node", "app.js"]
