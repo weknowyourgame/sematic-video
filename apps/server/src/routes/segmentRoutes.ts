@@ -202,7 +202,7 @@ export async function processSegmentJob(ctx: Context, job: any) {
     }
 
     // extract frame using FFmpeg API
-    const ffmpegServerUrl = process.env.FFMPEG_API_URL || 'http://localhost:3001';
+    const ffmpegServerUrl = process.env.FFMPEG_API_URL || 'https://sematic-video-884913204584.europe-west1.run.app';
     const ffmpegEndpoint = `${ffmpegServerUrl}/video/extract/segment-frame`;
     
     // Create form data for file upload

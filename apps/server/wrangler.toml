@@ -27,4 +27,4 @@ binding = "video_segment_queue"
 queue = "video-segment-queue"
 
 [vars]
-FFMPEG_API_URL = "http://localhost:3001"
+FFMPEG_API_URL = "https://sematic-video-884913204584.europe-west1.run.app"

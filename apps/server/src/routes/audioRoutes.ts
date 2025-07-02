@@ -32,7 +32,7 @@ export const audioRouter = t.router({
         }
 
         // convert video to audio using FFmpeg API
-        const ffmpegServerUrl = process.env.FFMPEG_API_URL || 'http://localhost:3001';
+        const ffmpegServerUrl = process.env.FFMPEG_API_URL || 'https://sematic-video-884913204584.europe-west1.run.app';
         const ffmpegEndpoint = `${ffmpegServerUrl}/convert/video/to/audio`;
         
         // Create form data for file upload
