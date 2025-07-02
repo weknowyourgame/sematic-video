@@ -24,7 +24,7 @@ export default function SignInModal({ trigger }: SignInModalProps) {
     setLoading(true);
     try {
       await signIn("google", {
-        callbackUrl: "/",
+        callbackUrl: "/dashboard",
       });
     } catch (error) {
       console.error("Sign in error:", error);

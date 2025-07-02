@@ -2,6 +2,7 @@
 
 import { cn } from "~/lib/utils";
 import { useScroll } from "~/hooks/use-scroll";
+import { useSession } from "~/lib/auth-client";
 import { GithubLogo, NotionLogo } from "./svgs";
 import { Button } from "./ui/button";
 import Link from "next/link";
@@ -9,6 +10,7 @@ import AuthHeader from "./auth-header";
 
 export default function Header() {
 	const scrolled = useScroll();
+	const { data: session } = useSession();
 
 	return (
 		<header
@@ -27,6 +29,13 @@ export default function Header() {
 			</Link>
 
 			<div className="flex items-center gap-2">
+				{session?.user && (
+					<Link href="/dashboard">
+						<Button variant="outline" size="sm">
+							Dashboard
+						</Button>
+					</Link>
+				)}
 				<Link
 					href="https://github.com/new?template_name=Waitly&template_owner=Idee8"
 					target="_blank"
