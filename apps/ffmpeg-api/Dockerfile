@@ -16,41 +16,39 @@
 #
 #####################################################################
 
-FROM node:18.14-alpine3.16 as build
+FROM jrottenberg/ffmpeg:4.4-alpine
 
-RUN apk add --no-cache git
-
-# install pkg
-RUN npm install -g pkg
-
-ENV PKG_CACHE_PATH /usr/cache
-
-WORKDIR /usr/src/app
-
-# Bundle app source
-COPY ./src .
-RUN npm install
-
-# Create single binary file
-RUN pkg --targets node18-alpine-x64 /usr/src/app/package.json
-
-
-FROM jrottenberg/ffmpeg:4.2-alpine311
+# Install Node.js
+RUN apk add --no-cache nodejs npm
 
 # Create user and change workdir
-RUN adduser --disabled-password --home /home/ffmpgapi ffmpgapi
-WORKDIR /home/ffmpgapi
+RUN adduser --disabled-password --home /home/ffmpegapi ffmpegapi
+WORKDIR /home/ffmpegapi
 
-# Copy files from build stage
-COPY --from=build /usr/src/app/ffmpegapi .
-COPY --from=build /usr/src/app/index.md .
-RUN chown ffmpgapi:ffmpgapi * && chmod 755 ffmpegapi
+# Copy package.json first for better caching
+COPY src/package.json ./
+RUN npm install --production
 
-EXPOSE 3000
+# Copy application source code
+COPY src/ ./
+
+# Create tmp directory for ffmpeg processing
+RUN mkdir -p /tmp && chmod 777 /tmp
+
+# Change ownership of the app directory
+RUN chown -R ffmpegapi:ffmpegapi /home/ffmpegapi
+
+# Expose port
+EXPOSE 3001
 
 # Change user
-USER ffmpgapi
+USER ffmpegapi
 
-ENTRYPOINT []
-CMD [ "./ffmpegapi" ]
+# Set environment variables
+ENV NODE_ENV=production
+ENV FILE_SIZE_LIMIT_BYTES=536870912
+ENV EXTERNAL_PORT=3001
+
+# Start the application
+CMD ["node", "app.js"]
 

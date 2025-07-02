@@ -4,6 +4,12 @@
   "description": "API for FFMPEG, media conversion utility",
   "main": "app.js",
   "bin" : { "ffmpegapi" : "./app.js" },
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js",
+    "docker:build": "docker build -t ffmpeg-api .",
+    "docker:run": "docker run -p 3001:3001 ffmpeg-api"
+  },
   "license": "ISC",
   "dependencies": {
     "busboy": "~0.3.1",
