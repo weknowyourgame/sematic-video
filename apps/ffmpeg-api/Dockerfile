@@ -16,10 +16,13 @@
 #
 #####################################################################
 
-FROM jrottenberg/ffmpeg:4.4-alpine
+FROM node:18-alpine
 
-# Install Node.js
-RUN apk add --no-cache nodejs npm
+# Install ffmpeg
+RUN apk add --no-cache ffmpeg git
+
+# Configure git to use https instead of git protocol
+RUN git config --global url."https://github.com/".insteadOf git://github.com/
 
 # Create user and change workdir
 RUN adduser --disabled-password --home /home/ffmpegapi ffmpegapi
@@ -27,7 +30,9 @@ WORKDIR /home/ffmpegapi
 
 # Copy package.json first for better caching
 COPY src/package.json ./
-RUN npm install --production
+
+# Install dependencies
+RUN npm install --production --legacy-peer-deps
 
 # Copy application source code
 COPY src/ ./
@@ -51,4 +56,3 @@ ENV EXTERNAL_PORT=8080
 
 # Start the application
 CMD ["node", "app.js"]
-
