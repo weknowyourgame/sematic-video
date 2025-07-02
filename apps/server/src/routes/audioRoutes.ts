@@ -57,7 +57,12 @@ export const audioRouter = t.router({
         // upload audio to R2
         const audiosBucket = ctx.audios;
         const audioKey = `${audioId}.wav`;
-        const audioBuffer = Buffer.from(audioBase64, 'base64');
+        // Convert base64 to Uint8Array for R2 upload (Cloudflare Workers compatible)
+        const binaryString = atob(audioBase64);
+        const audioBuffer = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          audioBuffer[i] = binaryString.charCodeAt(i);
+        }
 
         await audiosBucket.put(audioKey, audioBuffer, {
           httpMetadata: {

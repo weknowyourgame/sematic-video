@@ -28,6 +28,9 @@ export const vectorRouter = t.router({
           text: text,
         }
       );
+      await ctx.db?.prepare(
+        'UPDATE frames SET embedding = ? WHERE id = ?' // JSON string of embedding vector
+      ).bind(JSON.stringify(embeddings), id).run();
       return embeddings;
   }),
 });

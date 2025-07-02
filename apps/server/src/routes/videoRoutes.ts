@@ -38,7 +38,8 @@ export const videoRouter = t.router({
       },
     });
 
-    const finalUrl = `https://pub-8d5ad7219c0d4d598bc43cac71636197.r2.dev/${key}`; 
+    // Use the correct R2 URL format for Cloudflare Workers
+    const finalUrl = `https://pub-${videosBucket.name}.r2.dev/${key}`; 
 
     const video = await ctx.db?.prepare(
         `INSERT INTO videos (id, title, url, status, duration, text, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
