@@ -32,7 +32,7 @@ export default function Footer() {
       </div>
       <div>
         <p className="text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} Made with ❤️ by{" "}
+          &copy; {new Date().getFullYear()} Made with ♥︎ by{" "}
           <Link href="https://sarthakkapila.com" className="font-semibold text-foreground">Sarthak Kapila</Link>
         </p>
       </div>
