@@ -10,7 +10,7 @@ app.all('/trpc/*', async (c) => {
     endpoint: '/trpc',
     req: c.req.raw,
     router: appRouter,
-    createContext: () => createContext(c),
+    createContext: () => createContext(c as any),
   });
 });
 

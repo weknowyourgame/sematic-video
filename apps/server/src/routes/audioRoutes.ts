@@ -1,6 +1,6 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import { Context } from "../context";
-import { convertAudioSchema, videoSchema } from "../schemas";
+import { convertAudioSchema, uploadAudioSchema, videoSchema } from "../schemas";
 import { z } from "zod";
 
 const t = initTRPC.context<Context>().create();
@@ -65,7 +65,7 @@ export const audioRouter = t.router({
           },
         });
 
-        const audioUrl = `https://${audiosBucket.accountId}.r2.cloudflarestorage.com/${audiosBucket.name}/${audioKey}`;
+        const audioUrl = `https://pub-5e55bce7f108440f8bc08456a420cbdf.r2.dev/${audioKey}`;
 
         // insert audio record
         await ctx.db?.prepare(`
@@ -97,7 +97,7 @@ export const audioRouter = t.router({
     .mutation(async ({ ctx, input }) => {
         try {
       await ctx.db?.prepare(`
-        UPDATE videos SET url = ?, status = ?, updatedAt = ? WHERE id = ?
+        UPDATE audios SET url = ?, status = ?, updatedAt = ? WHERE id = ?
       `).bind(
         input.finalUrl,
         'active',
@@ -108,9 +108,46 @@ export const audioRouter = t.router({
         return { success: true };
         } catch (error) {
             console.error(error);
-            throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to update video" });
+            throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to update audio" });
         }
     }),  
+    uploadAudio: t.procedure
+    .input(uploadAudioSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { id, title, status, text, createdAt, updatedAt, fileData, fileName, fileType } = input;
+
+      // Convert base64 to Uint8Array for R2 upload (Cloudflare Workers compatible)
+      const binaryString = atob(fileData);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      const audiosBucket = ctx.audios;
+      const audioKey = `${id}.wav`;
+      await audiosBucket.put(audioKey, bytes, {
+        httpMetadata: {
+          contentType: fileType,
+        },
+      });
+
+      const audioUrl = `https://pub-5e55bce7f108440f8bc08456a420cbdf.r2.dev/${audioKey}`;
+
+      await ctx.db?.prepare(`
+        INSERT INTO audios (id, title, url, status, text, createdAt, updatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).bind(
+        id,
+        title,
+        audioUrl,
+        status,
+        text || "",
+        createdAt || new Date().toISOString(),
+        updatedAt || new Date().toISOString()
+      ).run();
+
+      return { success: true, audioUrl };
+    }),
 })
 
 export type audioRouter = typeof audioRouter;

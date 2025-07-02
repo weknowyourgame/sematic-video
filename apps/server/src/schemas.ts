@@ -47,3 +47,28 @@ export const segmentJobSchema = z.object({
   segmentIndex: z.number(),
   totalSegments: z.number(),
 });
+
+export const uploadVideoSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    status: z.enum(["idle", "processing", "failed", "active"]),
+    duration: z.number(),
+    text: z.string(),
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime(),
+    fileData: z.string(), // Base64 encoded file data
+    fileName: z.string(),
+    fileType: z.string().default('video/mp4'),
+});
+
+export const uploadAudioSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    status: z.enum(["processing", "active", "failed"]).default("processing"),
+    text: z.string().optional(),
+    createdAt: z.string().datetime().optional(),
+    updatedAt: z.string().datetime().optional(),
+    fileData: z.string(), // Base64 encoded audio data
+    fileName: z.string(),
+    fileType: z.string().default('audio/wav'),
+});

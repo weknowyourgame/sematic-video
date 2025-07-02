@@ -1,6 +1,6 @@
 import { initTRPC } from "@trpc/server";
 import { Context } from "../context";
-import { videoSchema } from "../schemas";
+import { uploadVideoSchema, videoSchema } from "../schemas";
 import { z } from "zod";
 
 const t = initTRPC.context<Context>().create();
@@ -18,20 +18,31 @@ export const videoRouter = t.router({
   }),
 
   uploadVideo: t.procedure
-    .input(videoSchema)
+    .input(uploadVideoSchema)
     .mutation(async ({ ctx, input }) => {
-    const { id, title, status, url, createdAt, updatedAt } = input;
+    const { id, title, status, duration, text, createdAt, updatedAt, fileData, fileName, fileType } = input;
 
-    // upload to r2 bucket
+    // Upload file to R2 bucket
     const videosBucket = ctx.videos;
     const key = `${id}.mp4`;
-    await videosBucket.put(key, url);
-    const finalUrl = `https://${videosBucket.accountId}.r2.cloudflarestorage.com/${videosBucket.name}/${key}`;
-    console.log(finalUrl);
+    
+    // Convert base64 to Uint8Array for R2 upload (Cloudflare Workers compatible)
+    const binaryString = atob(fileData);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    await videosBucket.put(key, bytes, {
+      httpMetadata: {
+        contentType: fileType,
+      },
+    });
+
+    const finalUrl = `https://pub-8d5ad7219c0d4d598bc43cac71636197.r2.dev/${key}`; 
 
     const video = await ctx.db?.prepare(
-        `INSERT INTO videos (id, title, url, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)`
-      ).bind(id, title, finalUrl, status, createdAt, updatedAt).run();      
+        `INSERT INTO videos (id, title, url, status, duration, text, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+      ).bind(id, title, finalUrl, status, duration, text, createdAt, updatedAt).run();      
 
     return video;
   }),

@@ -47,3 +47,5 @@ yarn-error.log*
 /build/
 
 apps/server/.wrangler/
+
+apps/server/examples/
