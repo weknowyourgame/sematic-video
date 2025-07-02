@@ -45,3 +45,5 @@ yarn-error.log*
 .react-router/
 .vite/
 /build/
+
+apps/server/.wrangler/
