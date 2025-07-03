@@ -26,7 +26,6 @@ export const videoRouter = t.router({
     const videosBucket = ctx.videos;
     const key = `${id}.mp4`;
     
-    // Convert base64 to Uint8Array for R2 upload (Cloudflare Workers compatible)
     const binaryString = atob(fileData);
     const bytes = new Uint8Array(binaryString.length);
     for (let i = 0; i < binaryString.length; i++) {
@@ -38,8 +37,7 @@ export const videoRouter = t.router({
       },
     });
 
-    // Use the correct R2 URL format for Cloudflare Workers
-    const finalUrl = `https://pub-${videosBucket.name}.r2.dev/${key}`; 
+    const finalUrl = `https://pub-8d5ad7219c0d4d598bc43cac71636197.r2.dev/${key}`;
 
     const video = await ctx.db?.prepare(
         `INSERT INTO videos (id, title, url, status, duration, text, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`

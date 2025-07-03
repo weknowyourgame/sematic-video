@@ -5,3 +5,6 @@ export { default as UpstashLogo } from "./upstash";
 export { default as VercelLogo } from "./vercel";
 export { default as NextjsLogo } from "./nextjs";
 export { default as ResendLogo } from "./resend";
+export { default as FfmpegLogo } from "./ffmpeg";
+export { default as CloudflareLogo } from "./cloudflare";
+export { default as GcpLogo } from "./gcp";

@@ -121,7 +121,6 @@ export const audioRouter = t.router({
     .mutation(async ({ ctx, input }) => {
       const { id, title, status, text, createdAt, updatedAt, fileData, fileName, fileType } = input;
 
-      // Convert base64 to Uint8Array for R2 upload (Cloudflare Workers compatible)
       const binaryString = atob(fileData);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {

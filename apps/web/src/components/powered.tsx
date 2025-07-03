@@ -1,5 +1,4 @@
-import { NextjsLogo, NotionLogo, ResendLogo, UpstashLogo } from "./svgs";
-import { VercelLogo } from "./svgs";
+import { NextjsLogo, VercelLogo, CloudflareLogo, FfmpegLogo, GcpLogo } from "./svgs";
 
 export default function Powered() {
 	return (
@@ -13,7 +12,9 @@ export default function Powered() {
 			<div className="flex items-center sm:gap-12 gap-6">
 				<VercelLogo />
 				<NextjsLogo className="!dark:text-foreground" />
-				{/* <CloudflareLogo /> */}
+				<CloudflareLogo width={64} height={40} />
+				<FfmpegLogo width={64} height={40} />
+				<GcpLogo width={64} height={40} />
 			</div>
 		</div>
 	);
