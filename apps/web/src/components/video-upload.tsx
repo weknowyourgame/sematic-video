@@ -14,6 +14,7 @@ export default function VideoUpload({ onVideoUploaded, onProcessingStarted }: Vi
   const { data: session } = useSession();
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isUploaded, setIsUploaded] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [videoId, setVideoId] = useState<string | null>(null);
@@ -38,39 +39,28 @@ export default function VideoUpload({ onVideoUploaded, onProcessingStarted }: Vi
     setUploadProgress(0);
 
     try {
-      // Convert file to base64
-      const base64 = await fileToBase64(selectedFile);
-      
       // Generate video ID
       const id = crypto.randomUUID();
-      const now = new Date().toISOString();
 
-      // Prepare video data
-      const videoData = {
-        id,
-        title: selectedFile.name,
-        status: "idle" as const,
-        duration: 0, // Will be updated after upload
-        text: "",
-        createdAt: now,
-        updatedAt: now,
-        fileData: base64,
-        fileName: selectedFile.name,
-        fileType: selectedFile.type,
-      };
+      // Prepare FormData for upload
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('videoId', id);
+      formData.append('title', selectedFile.name);
 
       // Upload to server
       const response = await fetch('/api/upload-video', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(videoData),
+        body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
       }
+
+      const result = await response.json();
+      console.log('Upload result:', result);
 
       setVideoId(id);
       onVideoUploaded(id);
@@ -78,9 +68,10 @@ export default function VideoUpload({ onVideoUploaded, onProcessingStarted }: Vi
 
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Upload failed. Please try again.');
+      alert(`Upload failed: ${error instanceof Error ? error.message : 'Please try again.'}`);
     } finally {
       setIsUploading(false);
+      setIsUploaded(true);
     }
   };
 
@@ -115,19 +106,7 @@ export default function VideoUpload({ onVideoUploaded, onProcessingStarted }: Vi
     }
   };
 
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        const base64 = reader.result as string;
-        // Remove data URL prefix
-        const base64Data = base64.split(',')[1];
-        resolve(base64Data);
-      };
-      reader.onerror = error => reject(error);
-    });
-  };
+
 
   return (
     <div className="w-full max-w-2xl mx-auto p-6 bg-card rounded-lg border">
@@ -154,10 +133,10 @@ export default function VideoUpload({ onVideoUploaded, onProcessingStarted }: Vi
             <Button
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading || isProcessing}
+              disabled={isUploading || isProcessing || isUploaded}
             >
               <Upload className="w-4 h-4 mr-2" />
-              Choose File
+              {'Choose File'}
             </Button>
             {selectedFile && (
               <span className="text-sm text-muted-foreground">
@@ -183,10 +162,16 @@ export default function VideoUpload({ onVideoUploaded, onProcessingStarted }: Vi
           </div>
         )}
 
+        {isUploaded && (
+          <div className="space-y-2">
+            <p className="text-sm">Video uploaded successfully</p>
+          </div>
+        )}
+
         {/* Upload Button */}
         <Button
           onClick={handleUpload}
-          disabled={!selectedFile || !session?.user || isUploading || isProcessing}
+          disabled={!selectedFile || !session?.user || isUploading || isProcessing || isUploaded }
           className="w-full"
         >
           {isUploading ? (
@@ -197,7 +182,7 @@ export default function VideoUpload({ onVideoUploaded, onProcessingStarted }: Vi
           ) : (
             <>
               <Upload className="w-4 h-4 mr-2" />
-              Upload Video
+              {'Upload Video'}
             </>
           )}
         </Button>
@@ -207,7 +192,7 @@ export default function VideoUpload({ onVideoUploaded, onProcessingStarted }: Vi
           <Button
             onClick={handleStartProcessing}
             disabled={isProcessing}
-            className="w-full bg-green-600 hover:bg-green-700"
+            className="w-full bg-[#e5ff00] hover:bg-[#e5ff00]/80 text-black"
           >
             {isProcessing ? (
               <>
