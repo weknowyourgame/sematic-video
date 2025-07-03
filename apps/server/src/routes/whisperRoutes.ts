@@ -9,45 +9,60 @@ export const whisperRouter = t.router({
     convertAudioToText: t.procedure
     .input(convertAudioSchema)
     .mutation(async ({ ctx, input }) => {
-        const { audioId, title, url, createdAt, updatedAt, text } = input;
+        const { audioId, id: videoId, title, url, createdAt, updatedAt, text } = input;
         const { ai } = ctx;
     try {
-        const res = await fetch(
-            "https://github.com/Azure-Samples/cognitive-services-speech-sdk/raw/master/samples/cpp/windows/console/samples/enrollment_audio_katie.wav"
-          );
+        const audiosBucket = ctx.audios;
+        const audioKey = `${audioId}.wav`;
+        const audioObject = await audiosBucket.get(audioKey);
 
-          const blob = await res.arrayBuffer();
-
-          const audioInput = {
-            audio: [...new Uint8Array(blob)],
+        let audioInput;
+        
+        if (!audioObject) {
+          console.error(`Audio file not found in R2: ${audioKey}`);
+        } else {
+          console.log(`Found audio file in R2: ${audioKey}`);
+          const audioBuffer = await audioObject.arrayBuffer();
+          audioInput = {
+            audio: [...new Uint8Array(audioBuffer)],
           };
-          const response = await ctx.ai.run(
-            "@cf/openai/whisper",
-            audioInput
-          );
-      
-          const text = response.text;
+        }
 
-          // upload to r2 bucket
-          const audiosBucket = ctx.audios;
-          const key = `${audioId}.txt`;
-          await audiosBucket.put(key, text);
-          const url = `https://${audiosBucket.accountId}.r2.cloudflarestorage.com/${audiosBucket.name}/${key}`;
-          console.log(url);
+        console.log('Running Whisper AI model...');
+        const response = await ctx.ai?.run(
+          "@cf/openai/whisper",
+          audioInput
+        );
+    
+        const transcriptText = response?.text || '';
+        console.log(`Transcript generated: "${transcriptText.substring(0, 100)}..."`);
 
-          // update db
-          await ctx.db?.prepare(`
-            UPDATE audios SET text = ?, status = ?, updatedAt = ?, url = ? WHERE id = ?
-          `).bind(
-            text,
-            'active',
-            new Date().toISOString(),
-            url,
-            audioId
-          ).run();
-          return { success: true, text };
+        // Store transcript text file in R2
+        const transcriptKey = `${audioId}.txt`;
+        await audiosBucket.put(transcriptKey, transcriptText);
+
+        // Update audios table
+        await ctx.db?.prepare(`
+          UPDATE audios SET text = ?, status = ?, updatedAt = ? WHERE id = ?
+        `).bind(
+          transcriptText,
+          'active',
+          new Date().toISOString(),
+          audioId
+        ).run();
+
+        await ctx.db?.prepare(`
+          UPDATE videos SET text = ?, updatedAt = ? WHERE id = ?
+        `).bind(
+          transcriptText,
+          new Date().toISOString(),
+          videoId
+        ).run();
+
+        console.log(`Audio to text conversion completed for video ${videoId}`);
+        return { success: true, text: transcriptText };
         } catch (error) {
-            console.error(error);
+            console.error('Whisper conversion error:', error);
             throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to convert audio to text" });
         }
     }),
